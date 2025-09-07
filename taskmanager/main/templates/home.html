@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{% if tasks_high %} 
+<div id="taskArea" class="task-container">
+  {% for task in tasks_high %}
+   {% if task.status != 'Completed' and task.status != 'Missed' %}
+  <!-- Task Card -->
+  <div class="card task-card shadow-lg border-0 mb-4"
+     data-taskid="{{ task.id }}"
+     data-duedate="{{ task.date }}"
+     data-status="{{ task.status }}">
+
+  <!-- Priority badge -->
+  <div class="priority-badge">
+    <span class="badge bg-danger px-3 py-2 rounded-pill">High Priority</span>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+    <h5 class="card-title fw-bold text-light">{{ task.title }}</h5>
+    <p class="card-text text-light small">{{ task.description }}</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer border-0 d-flex justify-content-between align-items-center">
+    <span id="timer-{{ loop.index }}" class="countdown">00:00:00</span>
+    <a class="btn btn-sm btn-success rounded-pill px-3" 
+       href="{{ url_for('task.mark_complete', task_id=task.id) }}">
+      <i class="bi bi-check-circle"></i> Done
+    </a>
+  </div>
+</div>
+
+  
+  <script>
+    // countdown for this task
+    (function() {
+      const deadline = new Date("{{ task.date }}").getTime();
+      const timerEl = document.getElementById("timer-{{ loop.index }}");
+
+      function updateDisplay() {
+        const now = new Date().getTime();
+        let diff = Math.floor((deadline - now) / 1000);
+
+        if (diff <= 0) {
+          timerEl.textContent = "00:00:00";
+          clearInterval(timer);
+          return;
+        }
+
+        let hours = Math.floor(diff / 3600);
+        let minutes = Math.floor((diff % 3600) / 60);
+        let seconds = diff % 60;
+
+        timerEl.textContent =
+          String(hours).padStart(2, '0') + ":" +
+          String(minutes).padStart(2, '0') + ":" +
+          String(seconds).padStart(2, '0');
+      }
+
+      let timer = setInterval(updateDisplay, 1000);
+      updateDisplay();
+    })();
+    function checkDeadlines() {
+    const now = new Date();
+
+    document.querySelectorAll(".task-card").forEach(card => {
+        const due = new Date(card.dataset.duedate);
+        const taskId = card.dataset.taskid;
+
+        if (due < now && card.dataset.status !== "completed") {
+            // Tell server to update status
+            fetch(`/api/tasks/${taskId}/miss`, { method: "POST" })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from DOM
+                        card.remove();
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+    });
+}
+setInterval(checkDeadlines, 10000);
+  </script>
+  {% endif %}
+  {% endfor %}
+  {% else %}
+  <div class="d-flex justify-content-center align-items-center" style="height: 70vh;">
+    <div class="card shadow-lg border-0 rounded-4 p-4 text-center"
+         style="max-width: 500px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); color: #fff;">
+      <h3 class="fw-bold mb-3">✨ Stay Motivated!</h3>
+      <p class="fs-5 fst-italic">"{{ quote }}"</p>
+    </div>
+  </div>
+  {% endif %}
+<style>
+  .task-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  padding: 30px;
+}
+
+.task-card {
+  position: relative;
+  width: 320px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  color: #fff;
+  transition: transform 0.2s ease-in-out;
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+}
+
+.priority-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.card-body {
+  padding-top: 60px; 
+}
+
+.card-footer {
+  background: transparent;
+}
+
+.countdown {
+  font-family: "Courier New", monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffc107;
+}
+</style>
+<script>
+  const taskArea = document.getElementById("taskArea");
+  const cards = taskArea.querySelectorAll(".task-card");
+
+  if (taskArea) {
+    const cards = taskArea.querySelectorAll(".task-card");
+
+  if (cards.length === 1) {
+    taskArea.classList.add("single");
+  } else if (cards.length > 1) {
+    taskArea.classList.add("multiple");
+  }
+}
+
+</script>
+
+{% endblock %}

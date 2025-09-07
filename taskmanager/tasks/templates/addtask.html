@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% block title %}Add Task{% endblock %}
+{% block content %}
+<div class="container mt-5 ">
+            <div class="row justify-content-center" style="padding-bottom:20px;">
+                <div class="col col-md-3">
+                    <form action="/tasks/add" method="POST">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.task.label(class="form-label") }}
+                            {{ form.task(class="form-control", placeholder="Enter your task") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.duedate.label(class="form-label") }}
+                            {{ form.duedate(class="form-control", placeholder="Enter the due date") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", placeholder="Enter a description") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-select") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.status.label(class="form-label") }}
+                            {{ form.status(class="form-select") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Task</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            
+        </script>
+{% endblock %}

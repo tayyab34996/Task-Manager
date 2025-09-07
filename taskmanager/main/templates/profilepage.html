@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="container mt-3">
+    
+            <div class="container mt-5">
+  <!-- Top-right button -->
+    <form id="profileForm" enctype="multipart/form-data">
+        <!-- CSRF token if using Flask-WTFstyle="max-width: 60px; border-radius: 50%; display: block; margin: 0 auto;  -->
+           {{ form.hidden_tag() }}
+            <div class="col col-md-3" style="padding-left:25px">
+               <img src="{{ url_for('main.get_profile_pic', filename=user.profilePicture) }}" alt="Profile Picture" class="img-thumbnail"  style="max-width: 60px; border-radius: 50%; display: block; margin: 0 auto;">
+
+                <label for="profile_pic" class="form-label" style="padding-left:20px;"><strong>Profile Picture</strong></label>
+                <input type="file" class="form-control" style= "padding-left: 20px;" id="profile_pic" name="profile_pic">
+            </div>
+      
+         <div class="row" style="padding:20px;">
+            
+         <div class="col col-md-5" style="padding-left:20px">
+
+        <div class="mb-3">
+            <label class="form-label"><strong>Username</strong></label>
+            <input type="text" class="form-control" name="username" value="{{ user.username }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label"><strong>Email</strong></label>
+            <input type="email" class="form-control" name="email" value="{{ user.email }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label"><strong>Gender</strong></label>
+            {{form.gender(class="form-control", placeholder="Enter your gender")}}
+        </div>
+        </div>
+        <div class="col col-md-5" style=" padding-left:80px">
+            <div class="mb-3">
+            <label class="form-label"><strong>Full Name</strong></label>
+            <input type="text" class="form-control" name="fullname" value="{{ user.fullname }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label"><strong>Date of Birth</strong></label>
+            {{form.dateofbirth(class="form-control", placeholder="Enter your date of birth")}}
+        </div>
+            <div class="mb-3">
+            <label for="address" class="form-label"><strong>Address</strong></label>
+            <input type="text" class="form-control" id="address" name="address" value="{{ user.address or '' }}">
+        </div>
+        </div>
+        <div class="col col-md-10" style="padding-left:20px">
+          <div class="mb-3">
+            <label for="about_me" class="form-label"><strong>About Me</strong></label>
+            <textarea class="form-control" id="about_me" name="about_me" rows="3">{{ user.about_me or '' }}</textarea>
+        </div>
+        </div>
+        <div class="col-mx-10" style="padding-left:505px">
+        <button type="submit" class="btn btn-success">Update Profile</button>
+        </div>
+        </div>
+       
+         
+    </form>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profileForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        const formData = new FormData(form);
+        fetch('/api/profile/{{ user.username }}', {
+            method: 'POST',
+            body:formData
+        })
+        .then(response => response.json())
+        .then(data => {
+        })
+        .catch(err => console.error("Error updating profile:", err));
+    });
+});
+</script>
+{% endblock %}
